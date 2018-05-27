@@ -21,6 +21,11 @@ namespace SchAlgorithm
 		double     responseRatio ;;//响应比
 		double		waitTime;//等待时间
 		double		lastTime=0;//已经运行时间
+		ostream &operator<<(ostream &out,Process &pro)
+		{
+			cout<<
+			return out;
+		}
 	};
 	
 	class Algorithm
@@ -228,10 +233,6 @@ namespace SchAlgorithm
 
 		//初始队列
 		ProcessesList processes_list;
-
-		//用来储存到达时间的副本
-		list<double> reachTime;
-		
 		//就绪队列
 		ProcessesList ready_list;
 		ProcessIterator iterator;
@@ -239,7 +240,7 @@ namespace SchAlgorithm
 		double axisTime = 0;
 
 		//定义时间片长度
-		int round=1;
+		int round=4;
 
 	public:
 		int add(Process &process)
@@ -250,18 +251,11 @@ namespace SchAlgorithm
 		//初始化一些值
 		void init()
 		{
-		
-			
-			for (iterator = processes_list.begin(); iterator != processes_list.end(); ++iterator)
+		for (iterator = processes_list.begin(); iterator != processes_list.end(); ++iterator)
 			{
-				//保存到达时间副本
-				reachTime.push_back((*iterator)->reachTime);
 				//初始化剩余时间
 				(*iterator)->lastTime = (*iterator)->runTime;
 			}
-
-		
-		
 
 		}
 	
@@ -269,16 +263,16 @@ namespace SchAlgorithm
 		//将到达的进程插入就绪队列
 		void Insert()
 		{			
-			for (iterator = processes_list.begin(); iterator != processes_list.end(); ++iterator)
+			for (iterator = processes_list.begin(); iterator != processes_list.end(); )
 			{
-				if (axisTime >= (*iterator)->reachTime&&((*iterator)->reachTime>=0))
+				if (axisTime >= (*iterator)->reachTime)
 				{
 			
 					ready_list.push_back(*iterator);
-				//	iterator = processes_list.erase(iterator);
-					(*iterator)->reachTime = -1;
-				
+					iterator = processes_list.erase(iterator);
 				}
+				else
+					++iterator;
 			}
 		}
 	 	void run() override
@@ -288,13 +282,16 @@ namespace SchAlgorithm
 			Process *now=*ready_list.begin();
 			now->beginTime = axisTime;
 			while (!ready_list.empty())
-			{
-		
+			{	
 				//在时间片内执行完毕	
 				if(now->lastTime<=round)
 				{
 					axisTime += now->lastTime;
 					now->endTime = axisTime;
+					//周转时间
+					now->turnoverTime = now->endTime - now->reachTime;
+					//Tr/Ts
+					now->normalizedResponseTime = now->turnoverTime / now->runTime;
 					ready_list.pop_front();
 					Insert();
 					if (!ready_list.empty())
