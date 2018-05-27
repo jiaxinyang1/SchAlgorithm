@@ -21,9 +21,9 @@ namespace SchAlgorithm
 		double     responseRatio ;;//响应比
 		double		waitTime;//等待时间
 		double		lastTime=0;//已经运行时间
-		ostream &operator<<(ostream &out,Process &pro)
+		friend 	ostream & operator << (ostream &out,Process &pro) 
 		{
-			cout<<
+			cout << pro.endTime << "\t" << pro.turnoverTime << "\t" << pro.normalizedResponseTime << endl;
 			return out;
 		}
 	};
@@ -35,7 +35,50 @@ namespace SchAlgorithm
 		//进程队列
 		typedef  list<Process*> ProcessesList;
 		typedef ProcessesList::iterator ProcessIterator;
+		//初始队列
+		ProcessesList processes_list;
+		//就绪队列
+		ProcessesList ready_list;
+
+		ProcessIterator iterator;
+		//定义时间轴
+		double axisTime = 0;
 		virtual void run() = 0;
+
+		//添加进程
+		int add(Process &process)
+		{
+			processes_list.push_back(&process);
+			return 1;
+		}
+
+		int add(ProcessesList &pro)
+		{
+			processes_list = pro;
+			return  1;
+		}
+		//计算周转时间平均值
+		static  double	turnoverTimeAverage( ProcessesList &pro)
+		{
+			double ave = 0;
+			for (ProcessIterator iterator1 = pro.begin();iterator1!=pro.end();++iterator1)
+			{
+				ave += (*iterator1)->turnoverTime;
+			}
+			return  ave / pro.size();
+		}
+		//计算归一化响应时间平均值
+		static  double	normalizedResponseTimeAverage(ProcessesList &pro)
+		{
+			double ave = 0;
+			for (ProcessIterator iterator1 = pro.begin(); iterator1 != pro.end(); ++iterator1)
+			{
+				ave += (*iterator1)->normalizedResponseTime;
+			}
+			return  ave / pro.size();
+		}
+
+
 	};
 
 
@@ -43,17 +86,12 @@ namespace SchAlgorithm
 	class FCFS : public Algorithm
 	{
 	private:
-		ProcessesList processes_list;
-		ProcessIterator iterator;
+
 		//定义时间轴
 		double axisTime=0;
 		
 	public:
-		int add(Process &process)
-		{
-			processes_list.push_back(&process);
-			return 1;
-		}
+	
 		void run() override
 		{
 			for (iterator=processes_list.begin();iterator!=processes_list.end();++iterator)
@@ -77,17 +115,12 @@ namespace SchAlgorithm
 	{
 	private:
 		//初始队列
-		ProcessesList processes_list;
-		ProcessIterator iterator;
+	/*	ProcessesList processes_list;
+		ProcessIterator iterator;*/
 		//定义时间轴
 		double axisTime = 0;
 	public:
 
-		int add(Process &process)
-		{
-			processes_list.push_back(&process);
-			return 1;
-		}
 		//计算到达时间
 		void WaitTime()
 		{
@@ -172,11 +205,7 @@ namespace SchAlgorithm
 		double axisTime = 0;
 		
 	public:
-		int add(Process &process)
-		{
-			processes_list.push_back(&process);
-			return 1;
-		}
+	
 		//返回最短时间进程
 		Process *MinTimeProcess()
 		{
@@ -231,22 +260,16 @@ namespace SchAlgorithm
 	{
 	private:
 
-		//初始队列
-		ProcessesList processes_list;
-		//就绪队列
-		ProcessesList ready_list;
-		ProcessIterator iterator;
-		//定义时间轴
-		double axisTime = 0;
 
 		//定义时间片长度
-		int round=4;
-
+		int round = 1;
 	public:
-		int add(Process &process)
+	
+
+		//设置时间片值
+		void setRound(int value)
 		{
-			processes_list.push_back(&process);
-			return 1;
+			round = value;
 		}
 		//初始化一些值
 		void init()
