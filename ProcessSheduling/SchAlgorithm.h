@@ -87,9 +87,6 @@ namespace SchAlgorithm
 	{
 	private:
 
-		//定义时间轴
-		double axisTime=0;
-		
 	public:
 	
 		void run() override
@@ -113,12 +110,7 @@ namespace SchAlgorithm
 	//最短响应比优先
 	class HRRN :public Algorithm
 	{
-	private:
-		//初始队列
-	/*	ProcessesList processes_list;
-		ProcessIterator iterator;*/
-		//定义时间轴
-		double axisTime = 0;
+
 	public:
 
 		//计算到达时间
@@ -195,14 +187,7 @@ namespace SchAlgorithm
 	class SPN:public Algorithm
 	{
 	private:
-		//初始队列
-		ProcessesList processes_list;
-		//就绪队列
-		ProcessesList ready_list;
 
-		ProcessIterator iterator;
-		//定义时间轴
-		double axisTime = 0;
 		
 	public:
 	
@@ -259,8 +244,6 @@ namespace SchAlgorithm
 	class RR :public Algorithm
 	{
 	private:
-
-
 		//定义时间片长度
 		int round = 1;
 	public:
